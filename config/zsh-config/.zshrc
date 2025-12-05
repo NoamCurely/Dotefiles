@@ -105,11 +105,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias cl="clear"
 alias nett="cd && clear"
-eval "$(starship init zsh)"
 
 # Created by `pipx` on 2025-08-09 12:48:10
 export PATH="$PATH:/home/nono/.local/bin"
-alias mini='~/mini-moulinette/mini-moul.sh'
 alias gccl="gcc -Wall -Wextra -Werror"
-
-
