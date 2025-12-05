@@ -23,7 +23,7 @@ if [ ! -f /etc/arch-release ]; then
   exit 1
 fi
 
-log "Début de l'installation Hyprland + NVIDIA + PipeWire + LazyVim + SDDM"
+log "Début de l'installation Hyprland + NVIDIA + PipeWire + LazyVim"
 
 # ------------------------------
 # Mise à jour
@@ -43,7 +43,6 @@ if ! command -v yay &>/dev/null; then
   cd yay
   makepkg -si --noconfirm
   cd ~
-  rm -rf /tmp/yay
   success "yay installé"
 else
   log "yay déjà installé."
@@ -58,12 +57,10 @@ OFFICIAL_PACKAGES=(
   nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
   pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
   git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
-  sddm sddm-kcm ttf-jetbrains-mono ttf-nerd-fonts-symbols
-  swaync
 )
 
 AUR_PACKAGES=(
-  brave-bin swaync hyprlock-git
+  brave-bin swaync
 )
 
 log "Installation des paquets officiels..."
@@ -73,6 +70,16 @@ success "Paquets officiels installés"
 log "Installation des paquets AUR..."
 yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
 success "Paquets AUR installés"
+
+# ------------------------------
+# Hyprlock (AUR)
+# ------------------------------
+if ! yay -Q hyprlock-git &>/dev/null; then
+  log "Installation de hyprlock-git..."
+  yay -S --noconfirm hyprlock-git || warn "Impossible d'installer hyprlock-git, continuation du script"
+else
+  log "hyprlock-git déjà installé."
+fi
 
 # ------------------------------
 # LazyVim
@@ -99,39 +106,20 @@ deploy_config() {
   for f in "$src"/*; do
     base=$(basename "$f")
     [[ "$base" == "$exclude" ]] && continue
-    mv "$f" "$dest/"
+    cp -r "$f" "$dest/"
   done
   success "Déployé : $dest"
 }
 
-# Hyprland (tout sauf toggle-audio.sh)
-HYPR_SRC="$REPO_DIR/hypr"
-HYPR_DEST="$HOME/.config/hypr"
+# Hyprland complet (configs + wallpapers + scripts)
+deploy_config "$REPO_DIR/hypr" "$HOME/.config/hypr" "toggle-audio.sh"
 
-# Sauvegarde si déjà existant
-[[ -d "$HYPR_DEST" ]] && mv "$HYPR_DEST" "${HYPR_DEST}.bak.$(date +%s)"
-
-# Création du dossier
-mkdir -p "$HYPR_DEST"
-
-# Copier tout sauf toggle-audio.sh
-shopt -s dotglob # inclut fichiers commençant par .
-for f in "$HYPR_SRC"/*; do
-  base=$(basename "$f")
-  [[ "$base" == "toggle-audio.sh" ]] && continue
-  mv "$f" "$HYPR_DEST/"
-done
-shopt -u dotglob
-
-success "Configuration Hyprland déployée"
-
-# S'assurer que les wallpapers sont bien dans le dossier
-mkdir -p "$HYPR_DEST/wallpapers"
-# Déplacer seulement s'il y a des fichiers
-if [ -d "$HYPR_SRC/wallpapers" ]; then
-  mv "$HYPR_SRC/wallpapers"/* "$HYPR_DEST/wallpapers/" 2>/dev/null || true
-fi
-success "Wallpapers Hypr copiés"
+# Swaync
+mkdir -p "$HOME/.config/swaync/icons"
+mkdir -p "$HOME/.config/swaync/themes"
+cp -r "$REPO_DIR/swaync/icons/"* "$HOME/.config/swaync/icons/"
+cp -r "$REPO_DIR/swaync/themes/"* "$HOME/.config/swaync/themes/"
+success "Config Swaync copiée"
 
 # Kitty
 deploy_config "$REPO_DIR/kitty" "$HOME/.config/kitty"
@@ -144,58 +132,20 @@ deploy_config "$REPO_DIR/nvim" "$HOME/.config/nvim"
 
 # Zsh
 mkdir -p "$HOME/.config/zsh"
-mv "$REPO_DIR/zsh-config"/* "$HOME/.config/zsh/"
+cp -r "$REPO_DIR/zsh-config/"* "$HOME/.config/zsh/"
 success "Configuration Zsh déployée"
 
 # Lua
 mkdir -p "$HOME/.config/nvim/lua"
-mv "$REPO_DIR/lua/config"/* "$HOME/.config/nvim/lua/config/"
-mv "$REPO_DIR/lua/plugins"/* "$HOME/.config/nvim/lua/plugins/"
-
-# ------------------------------
-# SwayNC
-# ------------------------------
-SWAYNC_SRC="$REPO_DIR/swaync"
-SWAYNC_DEST="$HOME/.config/swaync"
-
-# Sauvegarde si déjà existant
-[[ -d "$SWAYNC_DEST" ]] && mv "$SWAYNC_DEST" "${SWAYNC_DEST}.bak.$(date +%s)"
-
-# Création du dossier
-mkdir -p "$SWAYNC_DEST"
-
-# Copier tout
-mv "$SWAYNC_SRC"/* "$SWAYNC_DEST/"
-
-success "Configuration SwayNC déployée"
+cp -r "$REPO_DIR/lua/config/"* "$HOME/.config/nvim/lua/config/"
+cp -r "$REPO_DIR/lua/plugins/"* "$HOME/.config/nvim/lua/plugins/"
 
 # ------------------------------
 # Services
 # ------------------------------
 sudo systemctl enable --now NetworkManager
-sudo systemctl enable --now sddm
 sudo systemctl --global enable pipewire.service pipewire-pulse.service wireplumber
 success "Services activés"
-
-# ------------------------------
-# SDDM Configuration (FR + background)
-# ------------------------------
-log "Déploiement de la config SDDM..."
-sudo mkdir -p /etc/sddm.conf.d
-cp "$REPO_DIR/config/hypr/wallpapers/*" "$HOME/.config/sddm/"
-sudo tee /etc/sddm.conf.d/custom.conf >/dev/null <<EOF
-[Theme]
-Current=breeze
-Background=/usr/share/backgrounds/smoky.jpg
-
-[General]
-NumLock=on
-InputMethod=
-
-[Users]
-MinimumUid=1000
-EOF
-success "SDDM configuré (FR layout par défaut + background)"
 
 # ------------------------------
 # Brave avec flag
