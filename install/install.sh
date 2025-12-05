@@ -134,6 +134,30 @@ sudo systemctl enable --now NetworkManager
 sudo systemctl --global enable pipewire.service pipewire-pulse.service wireplumber
 success "Services activés"
 
+sudo systemctl enable --now NetworkManager
+sudo systemctl enable --now sddm
+sudo systemctl --global enable pipewire.service pipewire-pulse.service wireplumber
+success "Services activés"
+
+# ------------------------------
+# SDDM Configuration (FR + background)
+# ------------------------------
+log "Déploiement de la config SDDM..."
+sudo mkdir -p /etc/sddm.conf.d
+sudo tee /etc/sddm.conf.d/custom.conf >/dev/null <<EOF
+[Theme]
+Current=breeze
+Background=/usr/share/backgrounds/smoky.jpg
+
+[General]
+NumLock=on
+InputMethod=
+
+[Users]
+MinimumUid=1000
+EOF
+success "SDDM configuré (FR layout par défaut + background)"
+
 # ------------------------------
 # Brave avec flag
 # ------------------------------
