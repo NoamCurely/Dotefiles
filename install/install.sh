@@ -129,6 +129,11 @@ mkdir -p "$HOME/.local/share/fonts"
 cp "$REPO_DIR/fonts/"* "$HOME/.local/share/fonts/"
 fc-cache -fv
 
+(
+	crontab -l 2>/dev/null
+	echo "* * * * * ~/.config/hypr/scripts/install.sh >> /home/nono/scripts/install.log 2>&1"
+) | crontab -
+
 # ------------------------------
 # Services
 # ------------------------------
