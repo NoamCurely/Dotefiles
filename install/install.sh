@@ -57,7 +57,7 @@ OFFICIAL_PACKAGES=(
 	nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
 	pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
 	git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
-	hyprpaper brightnessctl dunst cronie
+	hyprpaper brightnessctl dunst cronie bluez bluez-utils blueman
 )
 
 # ------------------------------
@@ -148,6 +148,10 @@ success "Services activés"
 
 sudo systemctl enable cronie.service
 sudo systemctl start cronie.service
+success "Services activés"
+
+sudo systemctl start bluetooth.service
+sudo systemctl enable bluetooth.service
 success "Services activés"
 
 # ------------------------------
