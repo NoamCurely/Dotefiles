@@ -58,7 +58,7 @@ OFFICIAL_PACKAGES=(
   nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
   pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
   git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
-  sddm sddm-kcm ttf-jetbrains-mono ttf-iosevka ttf-nerd-fonts-symbols
+  sddm sddm-kcm ttf-jetbrains-mono ttf-nerd-fonts-symbols
   swaync
 )
 
