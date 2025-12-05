@@ -23,7 +23,7 @@ if [ ! -f /etc/arch-release ]; then
   exit 1
 fi
 
-log "Début de l'installation Hyprland + NVIDIA + PipeWire + LazyVim"
+log "Début de l'installation Hyprland + NVIDIA + PipeWire + LazyVim + configs"
 
 # ------------------------------
 # Mise à jour
@@ -59,8 +59,11 @@ OFFICIAL_PACKAGES=(
   git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
 )
 
+# ------------------------------
+# Paquets AUR
+# ------------------------------
 AUR_PACKAGES=(
-  brave-bin swaync
+  brave-bin swaync hyprlock-git
 )
 
 log "Installation des paquets officiels..."
@@ -72,18 +75,33 @@ yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
 success "Paquets AUR installés"
 
 # ------------------------------
-# Hyprlock (AUR)
+# Déploiement des configs
 # ------------------------------
-if ! yay -Q hyprlock-git &>/dev/null; then
-  log "Installation de hyprlock-git..."
-  yay -S --noconfirm hyprlock-git || warn "Impossible d'installer hyprlock-git, continuation du script"
-else
-  log "hyprlock-git déjà installé."
-fi
+REPO_DIR="$(pwd)/../config"
 
-# ------------------------------
+deploy_config() {
+  local src="$1"
+  local dest="$2"
+  mkdir -p "$dest"
+  cp -r "$src/"* "$dest/"
+  success "Déployé : $dest"
+}
+
+# Hyprland complet
+deploy_config "$REPO_DIR/hypr" "$HOME/.config/hypr"
+
+# Swaync (icônes + thèmes)
+mkdir -p "$HOME/.config/swaync"
+deploy_config "$REPO_DIR/swaync/icons" "$HOME/.config/swaync/icons"
+deploy_config "$REPO_DIR/swaync/themes" "$HOME/.config/swaync/themes"
+
+# Kitty
+deploy_config "$REPO_DIR/kitty" "$HOME/.config/kitty"
+
+# Waybar
+deploy_config "$REPO_DIR/waybar" "$HOME/.config/waybar"
+
 # LazyVim
-# ------------------------------
 log "Installation de LazyVim..."
 if [ -d ~/.config/nvim ]; then
   mv ~/.config/nvim ~/.config/nvim.bak.$(date +%Y%m%d_%H%M%S)
@@ -92,53 +110,14 @@ git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
 success "LazyVim installé"
 
-# ------------------------------
-# Déploiement des configs
-# ------------------------------
-REPO_DIR="$(pwd)/../config"
-
-deploy_config() {
-  local src="$1"
-  local dest="$2"
-  local exclude="$3"
-  [[ -d "$dest" ]] && mv "$dest" "${dest}.bak.$(date +%s)"
-  mkdir -p "$dest"
-  for f in "$src"/*; do
-    base=$(basename "$f")
-    [[ "$base" == "$exclude" ]] && continue
-    cp -r "$f" "$dest/"
-  done
-  success "Déployé : $dest"
-}
-
-# Hyprland complet (configs + wallpapers + scripts)
-deploy_config "$REPO_DIR/hypr" "$HOME/.config/hypr" "toggle-audio.sh"
-
-# Swaync
-mkdir -p "$HOME/.config/swaync/icons"
-mkdir -p "$HOME/.config/swaync/themes"
-cp -r "$REPO_DIR/swaync/icons/"* "$HOME/.config/swaync/icons/"
-cp -r "$REPO_DIR/swaync/themes/"* "$HOME/.config/swaync/themes/"
-success "Config Swaync copiée"
-
-# Kitty
-deploy_config "$REPO_DIR/kitty" "$HOME/.config/kitty"
-
-# Waybar
-deploy_config "$REPO_DIR/waybar" "$HOME/.config/waybar"
-
-# Nvim (LazyVim custom)
-deploy_config "$REPO_DIR/nvim" "$HOME/.config/nvim"
+# Nvim custom (Lua)
+mkdir -p "$HOME/.config/nvim/lua"
+deploy_config "$REPO_DIR/nvim/lua/config" "$HOME/.config/nvim/lua/config"
+deploy_config "$REPO_DIR/nvim/lua/plugins" "$HOME/.config/nvim/lua/plugins"
 
 # Zsh
 mkdir -p "$HOME/.config/zsh"
-cp -r "$REPO_DIR/zsh-config/"* "$HOME/.config/zsh/"
-success "Configuration Zsh déployée"
-
-# Lua
-mkdir -p "$HOME/.config/nvim/lua"
-cp -r "$REPO_DIR/lua/config/"* "$HOME/.config/nvim/lua/config/"
-cp -r "$REPO_DIR/lua/plugins/"* "$HOME/.config/nvim/lua/plugins/"
+deploy_config "$REPO_DIR/zsh-config" "$HOME/.config/zsh"
 
 # ------------------------------
 # Services
