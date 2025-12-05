@@ -19,8 +19,8 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; }
 # Vérification Arch
 # ------------------------------
 if [ ! -f /etc/arch-release ]; then
-  error "Ce script est conçu uniquement pour Arch Linux"
-  exit 1
+	error "Ce script est conçu uniquement pour Arch Linux"
+	exit 1
 fi
 
 log "Début de l'installation Hyprland + NVIDIA + PipeWire + LazyVim + configs"
@@ -36,35 +36,35 @@ success "Système mis à jour."
 # Installation yay (AUR)
 # ------------------------------
 if ! command -v yay &>/dev/null; then
-  log "Installation de yay..."
-  sudo pacman -S --needed base-devel git --noconfirm
-  cd /tmp
-  git clone https://aur.archlinux.org/yay.git
-  cd yay
-  makepkg -si --noconfirm
-  cd ~
-  success "yay installé"
+	log "Installation de yay..."
+	sudo pacman -S --needed base-devel git --noconfirm
+	cd /tmp
+	git clone https://aur.archlinux.org/yay.git
+	cd yay
+	makepkg -si --noconfirm
+	cd ~
+	success "yay installé"
 else
-  log "yay déjà installé."
+	log "yay déjà installé."
 fi
 
 # ------------------------------
 # Paquets officiels
 # ------------------------------
 OFFICIAL_PACKAGES=(
-  hyprland waybar wofi kitty swaybg swayidle grim slurp wl-clipboard wlr-randr
-  xdg-user-dirs polkit seatd xdg-desktop-portal xdg-desktop-portal-hyprland
-  nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
-  pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
-  git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
-  hyprpaper
+	hyprland waybar wofi kitty swaybg swayidle grim slurp wl-clipboard wlr-randr
+	xdg-user-dirs polkit seatd xdg-desktop-portal xdg-desktop-portal-hyprland
+	nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
+	pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
+	git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
+	hyprpaper brightnessctl dunst
 )
 
 # ------------------------------
 # Paquets AUR
 # ------------------------------
 AUR_PACKAGES=(
-  brave-bin swaync
+	brave-bin swaync
 )
 
 log "Installation des paquets officiels..."
@@ -81,11 +81,11 @@ success "Paquets AUR installés"
 REPO_DIR="$(pwd)/../config"
 
 deploy_config() {
-  local src="$1"
-  local dest="$2"
-  mkdir -p "$dest"
-  cp -r "$src/"* "$dest/"
-  success "Déployé : $dest"
+	local src="$1"
+	local dest="$2"
+	mkdir -p "$dest"
+	cp -r "$src/"* "$dest/"
+	success "Déployé : $dest"
 }
 
 # Hyprland complet
@@ -105,7 +105,7 @@ deploy_config "$REPO_DIR/waybar" "$HOME/.config/waybar"
 # LazyVim
 log "Installation de LazyVim..."
 if [ -d ~/.config/nvim ]; then
-  mv ~/.config/nvim ~/.config/nvim.bak.$(date +%Y%m%d_%H%M%S)
+	mv ~/.config/nvim ~/.config/nvim.bak.$(date +%Y%m%d_%H%M%S)
 fi
 git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
@@ -117,11 +117,13 @@ deploy_config "$REPO_DIR/nvim/lua/config" "$HOME/.config/nvim/lua/config"
 deploy_config "$REPO_DIR/nvim/lua/plugins" "$HOME/.config/nvim/lua/plugins"
 
 # Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+if [ -n "$ZSH_VERSION" ]; then
+	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+fi
 
-cp "$REPO_DIR/zsh-config/.zshrc" "~/"
+cp "$REPO_DIR/zsh-config/.zshrc" "$HOME/"
 
 mkdir -p "$HOME/.local/share/fonts"
 cp "$REPO_DIR/fonts/"* "$HOME/.local/share/fonts/"
