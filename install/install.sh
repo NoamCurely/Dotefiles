@@ -121,7 +121,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
-cp $REPO_DIR/zsh-config/.zshrc" "~/"
+cp "$REPO_DIR/zsh-config/.zshrc" "~/"
+
+mkdir -p "$HOME/.local/share/fonts"
+cp "$REPO_DIR/fonts/"* "$HOME/.local/share/fonts/"
+fc-cache -fv
 
 # ------------------------------
 # Services
