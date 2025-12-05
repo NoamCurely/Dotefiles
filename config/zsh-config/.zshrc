@@ -109,3 +109,4 @@ alias nett="cd && clear"
 # Created by `pipx` on 2025-08-09 12:48:10
 export PATH="$PATH:/home/nono/.local/bin"
 alias gccl="gcc -Wall -Wextra -Werror"
+export EDITOR=vim

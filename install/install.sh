@@ -57,7 +57,7 @@ OFFICIAL_PACKAGES=(
 	nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
 	pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
 	git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
-	hyprpaper brightnessctl dunst
+	hyprpaper brightnessctl dunst cronie
 )
 
 # ------------------------------
@@ -139,6 +139,10 @@ success "Services activés"
 sudo systemctl enable --now NetworkManager
 sudo systemctl enable --now sddm
 sudo systemctl --global enable pipewire.service pipewire-pulse.service wireplumber
+success "Services activés"
+
+sudo systemctl enable cronie.service
+sudo systemctl start cronie.service
 success "Services activés"
 
 # ------------------------------
