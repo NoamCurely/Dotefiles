@@ -57,13 +57,14 @@ OFFICIAL_PACKAGES=(
   nvidia nvidia-utils nvidia-settings egl-wayland vulkan-icd-loader vulkan-tools libva
   pipewire pipewire-alsa pipewire-pulse pipewire-jack pipewire-audio wireplumber pavucontrol
   git neovim code discord dolphin python-pip networkmanager openssh zsh fastfetch
+  hyprpaper
 )
 
 # ------------------------------
 # Paquets AUR
 # ------------------------------
 AUR_PACKAGES=(
-  brave-bin swaync hyprlock-git
+  brave-bin swaync
 )
 
 log "Installation des paquets officiels..."
@@ -116,8 +117,11 @@ deploy_config "$REPO_DIR/nvim/lua/config" "$HOME/.config/nvim/lua/config"
 deploy_config "$REPO_DIR/nvim/lua/plugins" "$HOME/.config/nvim/lua/plugins"
 
 # Zsh
-mkdir -p "$HOME/.config/zsh"
-deploy_config "$REPO_DIR/zsh-config" "$HOME/.config/zsh"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+cp $REPO_DIR/zsh-config/.zshrc" "~/"
 
 # ------------------------------
 # Services
