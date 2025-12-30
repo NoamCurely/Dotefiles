@@ -71,9 +71,9 @@ log "Installation des paquets officiels..."
 sudo pacman -S --needed --noconfirm "${OFFICIAL_PACKAGES[@]}"
 success "Paquets officiels installés"
 
-log "Installation des paquets AUR..."
-yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
-success "Paquets AUR installés"
+#log "Installation des paquets AUR..."
+#yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
+#success "Paquets AUR installés"
 
 # ------------------------------
 # Déploiement des configs
